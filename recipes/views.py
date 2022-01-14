@@ -15,11 +15,21 @@ class RecipeView(APIView):
 
     def post(self, request):
         try:
+            dados = request.data
             recipe = Recipe.objects.create(
-                name=request.data.get(),
-                instructions=request.data.get(),
-                time_to_cook=request.data.get()
+                name=dados.get("name"),
+                instructions=dados.get("instructions"),
+                time_to_cook=dados.get("time_to_cook")
             )
+            for ingredient in dados.get("ingredients"):
+                print(ingredient)
+                Ingredient.objects.create(
+                    name=ingredient.get("name"),
+                    quantity=ingredient.get("quantity"),
+                    unity=ingredient.get("unity"),
+                    recipe=recipe
+                )
+
             serialized_recipe = RecipeSerializer(recipe).data
             return Response(serialized_recipe, status=status.HTTP_201_CREATED)
         except IntegrityError:
