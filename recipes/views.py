@@ -40,9 +40,13 @@ class RecipeDetailView(APIView):
 
     def get(self, request, recipe_id: int):
         try:
-            pass
-        except:
-            pass
+            recipe_item = Recipe.objects.get(id=recipe_id)
+            serialized_item = RecipeSerializer(recipe_item).data
+            return Response(serialized_item)
+        except Recipe.DoesNotExist:
+            return Response({"message": "Recipe does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response({"message": "error"}, status=status.HTTP_400_BAD_REQUEST)
 
 
     def delete(self, request, recipe_id: int) -> Response:
