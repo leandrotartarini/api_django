@@ -52,13 +52,25 @@ class RecipeDetailView(APIView):
     def delete(self, request, recipe_id: int) -> Response:
 
         try:
-            pass
-        except:
-            pass
+            recipe_item = Recipe.objects.get(id=recipe_id)
+            recipe_item.delete()
+            return Response({"message": "Item removed successfully"})
+        except Recipe.DoesNotExist:
+            return Response({"message": "Item does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)
+
 
     def put(self, request, recipe_id):
 
         try:
-            pass
-        except:
-            pass
+            recipe_item = Recipe.objects.get(id=recipe_id)
+            recipe_item.name = request.data.get("name", recipe_item.name)
+            recipe_item.instructions = request.data.get("instructions", recipe_item.instructions)
+            recipe_item.save()
+
+            return Response(RecipeSerializer(recipe_item).data)
+        except Recipe.DoesNotExist:
+            return Response({"message": "Item does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)
