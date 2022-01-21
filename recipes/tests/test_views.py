@@ -8,10 +8,15 @@ client = Client()
 class GetAllRecipesTest(TestCase):
 
     def setUp(self):
-        pass
+        Recipe.objects.create(name="chocolate tart", instructions="cook for one hour", time_to_cook=1)
+        Recipe.objects.create(name="orange tart", instructions="cook for 2 hours", time_to_cook=5)
 
     def test_get_all_recipes(self):
-        pass
+        response = client.get('/recipe')
+        recipes = Recipe.objects.all()
+        serializer = RecipeSerializer(recipes, many=True)
+        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 class CreateNewRecipe(TestCase):
 
