@@ -66,12 +66,14 @@ class RecipeDetailView(APIView):
     def put(self, request, recipe_id):
 
         try:
+            # o recipe_item é uma instancia (objeto) da classe Recipe
             recipe_item = Recipe.objects.get(id=recipe_id)
             recipe_item.name = request.data.get("name", recipe_item.name)
             recipe_item.instructions = request.data.get("instructions", recipe_item.instructions)
             recipe_item.time_to_cook = request.data.get("time_to_cook", recipe_item.time_to_cook)
 
             for ingredient in request.data.get("ingredients"):
+                # ingredient_item é um dicionario
                 ingredient_item = Ingredient.objects.get(id=ingredient.get("id"))
                 ingredient_item.name = ingredient.get("name")
                 ingredient_item.quantity = ingredient["quantity"]
@@ -105,12 +107,17 @@ class IngredientsDetailView(APIView):
 
         try:
             recipe_item = Recipe.objects.get(id=recipe_id)
-            for ingredient in request.data.get("ingredients"):
+            for ingredient in request.data:
                 Ingredient.objects.create(
                     name=ingredient.get("name"),
                     quantity=ingredient.get("quantity"),
                     unity=ingredient.get("unity"),
                     recipe=recipe_item
                 )
+            serialized_recipe = RecipeSerializer(recipe_item).data
+            return Response(serialized_recipe, status=status.HTTP_200_OK)
+
+        except Recipe.DoesNotExist:
+            return Response({"message": "Item does not exist"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            pass
+            return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)
