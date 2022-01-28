@@ -112,3 +112,45 @@ class PutSingleRecipeTest(TestCase):
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, valid_response)
+
+
+class PatchSingleRecipeTest(TestCase):
+
+    def setUp(self):
+        self.choc_tart = Recipe.objects.create(name="choc tart", instructions="cook for one hour", time_to_cook=1)
+
+    def test_patch_single_recipe(self):
+        response = client.patch('/recipe/1/ingredients', [{
+            "name": "sugar",
+            "quantity": "2",
+            "unity": "300g"
+        },
+        {
+            "name": "chocolate",
+            "quantity": "1",
+            "unity": "300g"
+        }], content_type='application/json')
+        valid_response = {
+                "id": 1,
+                "ingredients": [
+                    {
+                        "id": 1,
+                        "name": "sugar",
+                        "quantity": 2.0,
+                        "unity": "300g",
+                        "recipe": 1
+                    },
+                    {
+                        "id": 2,
+                        "name": "chocolate",
+                        "quantity": 1.0,
+                        "unity": "300g",
+                        "recipe": 1
+                    },
+                ],
+                "name": "choc tart",
+                "instructions": "cook for one hour",
+                "time_to_cook": 1
+            }
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, valid_response)
