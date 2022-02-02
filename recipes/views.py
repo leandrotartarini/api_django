@@ -21,11 +21,16 @@ class RecipeView(APIView):
     def post(self, request):
         try:
             dados = request.data
+            if len(dados.get("ingredients")) == 0:
+                return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)
+
             recipe = Recipe.objects.create(
                 name=dados.get("name"),
                 instructions=dados.get("instructions"),
-                time_to_cook=dados.get("time_to_cook")
+                time_to_cook=dados.get("time_to_cook"),
+                origin=dados.get("origin")
             )
+
             for ingredient in dados.get("ingredients"):
                 Ingredient.objects.create(
                     name=ingredient.get("name"),
@@ -71,6 +76,7 @@ class RecipeDetailView(APIView):
             recipe_item.name = request.data.get("name", recipe_item.name)
             recipe_item.instructions = request.data.get("instructions", recipe_item.instructions)
             recipe_item.time_to_cook = request.data.get("time_to_cook", recipe_item.time_to_cook)
+            recipe_item.origin = request.data.get("origin", recipe_item.origin)
 
             for ingredient in request.data.get("ingredients"):
                 # ingredient_item é um dicionario
