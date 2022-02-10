@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from recipes.models import Recipe, Ingredient
 from recipes.serializers import RecipeSerializer
 
+
 class RecipeView(APIView):
 
     def get(self, request):
@@ -54,7 +55,7 @@ class RecipeDetailView(APIView):
             return Response(serialized_item)
         except Recipe.DoesNotExist:
             return Response({"message": "Recipe does not exist"}, status=status.HTTP_404_NOT_FOUND)
-        except Exception:
+        except Exception as e:
             return Response({"message": "error"}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, recipe_id: int) -> Response:
@@ -65,7 +66,7 @@ class RecipeDetailView(APIView):
             return Response({"message": "Item removed successfully"})
         except Recipe.DoesNotExist:
             return Response({"message": "Item does not exist"}, status=status.HTTP_404_NOT_FOUND)
-        except Exception:
+        except Exception as e:
             return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, recipe_id):
