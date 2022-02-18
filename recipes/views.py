@@ -108,6 +108,7 @@ class RecipeDetailView(APIView):
             print(traceback.format_exc())
             return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class IngredientsDetailView(APIView):
 
     def patch(self, request, recipe_id):
