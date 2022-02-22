@@ -77,16 +77,29 @@ class PutSingleRecipeTest(TestCase):
 
     def setUp(self):
         User.objects.create(email="test3user@test.com", password="135790")
+        User.objects.create(email="test4user@test.com", password="246800")
 
-    def test_put_single_user(self):
+    def test_put_email(self):
         response = client.put('/user/1', {
             "email": "changedEmail@test.com",
-            "password": "123456"
         }, content_type='application/json')
         valid_response = {
             'id': 1,
             'email': "changedEmail@test.com",
-            "password": "123456"
+            'password': "135790"
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, valid_response)
+
+    def test_put_password(self):
+        response = client.put('/user/2', {
+            "password": "newpassword123",
+        }, content_type='application/json')
+        valid_response = {
+            'id': 2,
+            'email': 'test4user@test.com',
+            'password': 'newpassword123'
+        }
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, valid_response)
+
