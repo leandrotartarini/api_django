@@ -71,4 +71,5 @@ class UserRegistrationView(APIView):
             return Response(serialized_user, status=status.HTTP_201_CREATED)
 
         except IntegrityError:
+            print(traceback.format_exc())
             return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)

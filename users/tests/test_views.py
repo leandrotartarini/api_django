@@ -52,8 +52,7 @@ class GetSingleUserTest(TestCase):
 
         self.valid_payload = {
             "id": 2,
-            "email": "test2user@test.com",
-            "password": "654321"
+            "email": "test2user@test.com"
         }
 
     def test_get_single_valid_user(self):
@@ -85,8 +84,7 @@ class PutSingleRecipeTest(TestCase):
         }, content_type='application/json')
         valid_response = {
             'id': 1,
-            'email': "changedEmail@test.com",
-            'password': "135790"
+            'email': "changedEmail@test.com"
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, valid_response)
@@ -97,8 +95,7 @@ class PutSingleRecipeTest(TestCase):
         }, content_type='application/json')
         valid_response = {
             'id': 2,
-            'email': 'test4user@test.com',
-            'password': 'newpassword123'
+            'email': 'test4user@test.com'
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, valid_response)
