@@ -4,6 +4,9 @@ from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from recipes.models import Recipe
+from recipes.serializers import RecipeSerializer
 from users.models import User
 from users.serializers import UserSerializer
 
@@ -72,4 +75,14 @@ class UserRegistrationView(APIView):
 
         except IntegrityError:
             print(traceback.format_exc())
+            return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserRecipesView(APIView):
+
+    def get(self, request):
+        try:
+            recipes = Recipe.objects.filter(user=request.user)
+            serialized_recipes = RecipeSerializer(recipes, many=True).data
+            return Response(serialized_recipes)
+        except Exception:
             return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)

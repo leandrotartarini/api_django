@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from recipes.models import Recipe, Ingredient
 from recipes.serializers import RecipeSerializer
+from users.models import User
 
 
 class RecipeView(APIView):
@@ -29,7 +30,8 @@ class RecipeView(APIView):
                 name=dados.get("name"),
                 instructions=dados.get("instructions"),
                 time_to_cook=dados.get("time_to_cook"),
-                origin=dados.get("origin")
+                origin=dados.get("origin"),
+                user=request.user
             )
 
             for ingredient in dados.get("ingredients"):
