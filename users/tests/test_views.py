@@ -22,10 +22,6 @@ class GetAllUsersTest(TestCase):
             'password': '123456'
         }
 
-    #def test_get_token(self):
-     #   response = client.post('/token', json.dumps(self.valid_user_payload), content_type='application/json', **self.bearer_token)
-      #  self.assertEqual(response.status_code, status.HTTP_200_OK)
-
     def test_user_must_send_jwt_token(self):
         response = client.get('/user')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

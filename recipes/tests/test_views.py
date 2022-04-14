@@ -1,7 +1,7 @@
 import json
 from django.test import TestCase, Client
 from ..serializers import RecipeSerializer
-from ..models import Recipe, Ingredient
+from ..models import Recipe
 from ..models import User
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -19,7 +19,7 @@ class GetAllRecipesTest(TestCase):
 
     def setUp(self):
         self.choc_tart = Recipe.objects.create(name="chocolate tart", instructions="cook for one hour",
-                                                    time_to_cook=1, origin='Portugal')
+                                               time_to_cook=1, origin='Portugal')
         self.double_choc = Recipe.objects.create(name="double chocolate tart", instructions="cook for three hours",
                                                  time_to_cook=3, origin='UK')
         self.triple_choc = Recipe.objects.create(name="double chocolate tart", instructions="cook for four hours",
@@ -89,7 +89,8 @@ class GetSingleRecipeTest(TestCase):
         return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
 
     def setUp(self):
-        self.choc_tart = Recipe.objects.create(name="chocolate tart", instructions="cook for one hour", time_to_cook=1, origin='Portugal')
+        self.choc_tart = Recipe.objects.create(name="chocolate tart", instructions="cook for one hour", time_to_cook=1,
+                                               origin='Portugal')
         self.double_choc = Recipe.objects.create(name="double chocolate tart", instructions="cook for three hours",
                                                  time_to_cook=3, origin='UK')
         self.triple_choc = Recipe.objects.create(name="double chocolate tart", instructions="cook for four hours",
@@ -140,7 +141,8 @@ class PutSingleRecipeTest(TestCase):
         return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
 
     def setUp(self):
-        self.choc_tart = Recipe.objects.create(name="chocolate tart", instructions="cook for one hour", time_to_cook=1, origin='Northern Ireland')
+        self.choc_tart = Recipe.objects.create(name="chocolate tart", instructions="cook for one hour", time_to_cook=1,
+                                               origin='Northern Ireland')
 
     def test_put_single_recipe(self):
         response = client.put('/recipe/1', {
@@ -173,42 +175,44 @@ class PatchSingleRecipeTest(TestCase):
         return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
 
     def setUp(self):
-        self.choc_tart = Recipe.objects.create(name="choc tart", instructions="cook for one hour", time_to_cook=1, origin="Chile")
+        self.choc_tart = Recipe.objects.create(name="choc tart", instructions="cook for one hour", time_to_cook=1,
+                                               origin="Chile")
 
     def test_patch_single_recipe(self):
-        response = client.patch('/recipe/1/ingredients', [{
-            "name": "sugar",
-            "quantity": "2",
-            "unity": "300g"
-        },
-        {
-            "name": "chocolate",
-            "quantity": "1",
-            "unity": "300g"
-        }], content_type='application/json', **self.bearer_token)
+        response = client.patch('/recipe/1/ingredients',
+                                [{
+                                    "name": "sugar",
+                                    "quantity": "2",
+                                    "unity": "300g"
+                                },
+                                    {
+                                        "name": "chocolate",
+                                        "quantity": "1",
+                                        "unity": "300g"
+                                    }], content_type='application/json', **self.bearer_token)
         valid_response = {
-                "id": 1,
-                "ingredients": [
-                    {
-                        "id": 1,
-                        "name": "sugar",
-                        "quantity": 2.0,
-                        "unity": "300g",
-                        "recipe": 1
-                    },
-                    {
-                        "id": 2,
-                        "name": "chocolate",
-                        "quantity": 1.0,
-                        "unity": "300g",
-                        "recipe": 1
-                    },
-                ],
-                "name": "choc tart",
-                "instructions": "cook for one hour",
-                "time_to_cook": 1,
-                "origin": "Chile",
-                "user": None
-            }
+            "id": 1,
+            "ingredients": [
+                {
+                    "id": 1,
+                    "name": "sugar",
+                    "quantity": 2.0,
+                    "unity": "300g",
+                    "recipe": 1
+                },
+                {
+                    "id": 2,
+                    "name": "chocolate",
+                    "quantity": 1.0,
+                    "unity": "300g",
+                    "recipe": 1
+                },
+            ],
+            "name": "choc tart",
+            "instructions": "cook for one hour",
+            "time_to_cook": 1,
+            "origin": "Chile",
+            "user": None
+        }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, valid_response)
