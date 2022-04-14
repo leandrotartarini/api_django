@@ -1,21 +1,32 @@
 import json
-
-from django.test import TestCase, Client, client
+from django.test import TestCase, Client
 from ..serializers import RecipeSerializer
 from ..models import Recipe, Ingredient
+from ..models import User
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 
 client = Client()
 
 
 class GetAllRecipesTest(TestCase):
+    @property
+    def bearer_token(self):
+        user = User.objects.create(email="testuser@test.com", password="123456")
+
+        refresh = RefreshToken.for_user(user)
+        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
 
     def setUp(self):
-        Recipe.objects.create(name="chocolate tart", instructions="cook for one hour", time_to_cook=1, origin="Brazil")
-        Recipe.objects.create(name="orange tart", instructions="cook for 2 hours", time_to_cook=5, origin="Argentina")
+        self.choc_tart = Recipe.objects.create(name="chocolate tart", instructions="cook for one hour",
+                                                    time_to_cook=1, origin='Portugal')
+        self.double_choc = Recipe.objects.create(name="double chocolate tart", instructions="cook for three hours",
+                                                 time_to_cook=3, origin='UK')
+        self.triple_choc = Recipe.objects.create(name="double chocolate tart", instructions="cook for four hours",
+                                                 time_to_cook=4, origin='Wales')
 
     def test_get_all_recipes(self):
-        response = client.get('/recipe')
+        response = client.get('/recipe', **self.bearer_token)
         recipes = Recipe.objects.all()
         serializer = RecipeSerializer(recipes, many=True)
         self.assertEqual(response.data, serializer.data)
@@ -24,11 +35,18 @@ class GetAllRecipesTest(TestCase):
 
 class CreateNewRecipe(TestCase):
 
+    @property
+    def bearer_token(self):
+        user = User.objects.create(email="testuser@test.com", password="123456")
+
+        refresh = RefreshToken.for_user(user)
+        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
+
     def setUp(self):
         self.valid_payload = {
             'name': 'double chocolate tart',
             'instructions': 'cook for three hours',
-            'time_to_cook': 1,
+            'time_to_cook': 3,
             'origin': 'Brazil',
             'ingredients': [
                 {
@@ -51,15 +69,24 @@ class CreateNewRecipe(TestCase):
         }
 
     def test_create_valid_recipe(self):
-        response = client.post('/recipe', json.dumps(self.valid_payload), content_type="application/json")
+        response = client.post('/recipe', json.dumps(self.valid_payload),
+                               content_type="application/json", **self.bearer_token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_invalid_recipe(self):
-        response = client.post('/recipe', json.dumps(self.invalid_payload), content_type="application/json")
+        response = client.post('/recipe', json.dumps(self.invalid_payload),
+                               content_type="application/json", **self.bearer_token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class GetSingleRecipeTest(TestCase):
+
+    @property
+    def bearer_token(self):
+        user = User.objects.create(email="testuser@test.com", password="123456")
+
+        refresh = RefreshToken.for_user(user)
+        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
 
     def setUp(self):
         self.choc_tart = Recipe.objects.create(name="chocolate tart", instructions="cook for one hour", time_to_cook=1, origin='Portugal')
@@ -74,27 +101,43 @@ class GetSingleRecipeTest(TestCase):
             'name': 'double chocolate tart',
             'instructions': 'cook for three hours',
             'time_to_cook': 3,
-            'origin': 'UK'
+            'origin': 'UK',
+            'user': None
         }
 
-    def test_get_valid_single_recipe(self):
-        response = client.get('/recipe/2')
+    def test_get_single_valid_recipe(self):
+        response = client.get('/recipe/2', **self.bearer_token)
         self.assertEqual(response.data, self.valid_payload)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class DeleteSingleRecipe(TestCase):
 
+    @property
+    def bearer_token(self):
+        user = User.objects.create(email="testuser@test.com", password="123456")
+
+        refresh = RefreshToken.for_user(user)
+        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
+
     def setUp(self):
-        self.choc_tart = Recipe.objects.create(name="chocolate tart", instructions="cook for one hour", time_to_cook=1, origin='Ireland')
+        self.choc_tart = Recipe.objects.create(name="chocolate tart", instructions="cook for one hour",
+                                               time_to_cook=1, origin='Northern Ireland')
 
     def test_delete_single_recipe(self):
-        response = client.delete('/recipe/1')
+        response = client.delete('/recipe/1', **self.bearer_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {"message": "Item removed successfully"})
 
 
 class PutSingleRecipeTest(TestCase):
+
+    @property
+    def bearer_token(self):
+        user = User.objects.create(email="testuser@test.com", password="123456")
+
+        refresh = RefreshToken.for_user(user)
+        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
 
     def setUp(self):
         self.choc_tart = Recipe.objects.create(name="chocolate tart", instructions="cook for one hour", time_to_cook=1, origin='Northern Ireland')
@@ -106,20 +149,28 @@ class PutSingleRecipeTest(TestCase):
             'time_to_cook': 2,
             'origin': 'Netherlands',
             'ingredients': []
-        }, content_type='application/json')
+        }, content_type='application/json', **self.bearer_token)
         valid_response = {
             'id': 1,
             'ingredients': [],
             'name': "banana tart",
             'instructions': "cook for two hours",
             'time_to_cook': 2,
-            'origin': 'Netherlands'
+            'origin': 'Netherlands',
+            'user': None
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, valid_response)
 
 
 class PatchSingleRecipeTest(TestCase):
+
+    @property
+    def bearer_token(self):
+        user = User.objects.create(email="testuser@test.com", password="123456")
+
+        refresh = RefreshToken.for_user(user)
+        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
 
     def setUp(self):
         self.choc_tart = Recipe.objects.create(name="choc tart", instructions="cook for one hour", time_to_cook=1, origin="Chile")
@@ -134,7 +185,7 @@ class PatchSingleRecipeTest(TestCase):
             "name": "chocolate",
             "quantity": "1",
             "unity": "300g"
-        }], content_type='application/json')
+        }], content_type='application/json', **self.bearer_token)
         valid_response = {
                 "id": 1,
                 "ingredients": [
@@ -156,7 +207,8 @@ class PatchSingleRecipeTest(TestCase):
                 "name": "choc tart",
                 "instructions": "cook for one hour",
                 "time_to_cook": 1,
-                "origin": "Chile"
+                "origin": "Chile",
+                "user": None
             }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, valid_response)
