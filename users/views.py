@@ -77,6 +77,7 @@ class UserRegistrationView(APIView):
             print(traceback.format_exc())
             return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserRecipesView(APIView):
 
     def get(self, request):
