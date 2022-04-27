@@ -22,19 +22,19 @@ class RecipeView(APIView):
 
     def post(self, request):
         try:
-            dados = request.data
-            if len(dados.get("ingredients")) == 0:
+            data = request.data
+            if len(data.get("ingredients")) == 0:
                 return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)
 
             recipe = Recipe.objects.create(
-                name=dados.get("name"),
-                instructions=dados.get("instructions"),
-                time_to_cook=dados.get("time_to_cook"),
-                origin=dados.get("origin"),
+                name=data.get("name"),
+                instructions=data.get("instructions"),
+                time_to_cook=data.get("time_to_cook"),
+                origin=data.get("origin"),
                 user=request.user
             )
 
-            for ingredient in dados.get("ingredients"):
+            for ingredient in data.get("ingredients"):
                 Ingredient.objects.create(
                     name=ingredient.get("name"),
                     quantity=ingredient.get("quantity"),

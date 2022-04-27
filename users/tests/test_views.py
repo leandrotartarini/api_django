@@ -1,20 +1,13 @@
 import json
-from django.test import TestCase, Client
+from django.test import Client
+from recipes.tests.test_views import BaseTest
 from ..serializers import UserSerializer
 from ..models import User
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-
 client = Client()
 
 
-class GetAllUsersTest(TestCase):
-    @property
-    def bearer_token(self):
-        user = User.objects.create(email="testuser@test.com", password="123456")
-
-        refresh = RefreshToken.for_user(user)
-        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
+class GetAllUsersTest(BaseTest):
 
     def setUp(self):
         self.valid_user_payload = {
@@ -34,14 +27,7 @@ class GetAllUsersTest(TestCase):
         self.assertEqual(response.data, serializer.data)
 
 
-class CreateNewUser(TestCase):
-
-    @property
-    def bearer_token(self):
-        user = User.objects.create(email="testuser@test.com", password="123456")
-
-        refresh = RefreshToken.for_user(user)
-        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
+class CreateNewUser(BaseTest):
 
     def setUp(self):
         self.valid_user_payload = {
@@ -65,14 +51,7 @@ class CreateNewUser(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class GetSingleUserTest(TestCase):
-
-    @property
-    def bearer_token(self):
-        user = User.objects.create(email="testuser@test.com", password="123456")
-
-        refresh = RefreshToken.for_user(user)
-        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
+class GetSingleUserTest(BaseTest):
 
     def setUp(self):
         User.objects.create(email="test1user@test.com", password="123456")
@@ -90,14 +69,7 @@ class GetSingleUserTest(TestCase):
         self.assertEqual(response.data, self.valid_payload)
 
 
-class DeleteSingleRecipe(TestCase):
-
-    @property
-    def bearer_token(self):
-        user = User.objects.create(email="testuser@test.com", password="123456")
-
-        refresh = RefreshToken.for_user(user)
-        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
+class DeleteSingleRecipe(BaseTest):
 
     def test_delete_single_user(self):
         response = client.delete('/user/1', **self.bearer_token)
@@ -105,14 +77,7 @@ class DeleteSingleRecipe(TestCase):
         self.assertEqual(response.data, {"message": "User removed successfully"})
 
 
-class PutSingleRecipeTest(TestCase):
-
-    @property
-    def bearer_token(self):
-        user = User.objects.create(email="testuser@test.com", password="123456")
-
-        refresh = RefreshToken.for_user(user)
-        return {"HTTP_AUTHORIZATION": f'Bearer {refresh.access_token}'}
+class PutSingleRecipeTest(BaseTest):
 
     def setUp(self):
         User.objects.create(email="test3user@test.com", password="135790")
